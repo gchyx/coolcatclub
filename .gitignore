@@ -1,0 +1,24 @@
+.DS_Store
+
+# Local terraform directory (providers and modules)
+.terraform/
+
+# State files (contains sensitive info and local paths)
+*.tfstate
+*.tfstate.backup
+terraform.tfstate
+terraform.tfstate.backup
+
+# Ignore provider binaries:
+.terraform/providers/
+.terraform-registry.d/
+**/.terraform/
+*.tfplan
+terraform/.terraform/providers/
+
+# Sensitive files
+*.pem
+*.tfvars
+
+# Crash logs
+crash.log
