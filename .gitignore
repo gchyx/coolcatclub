@@ -1,4 +1,5 @@
 .DS_Store
+logs/
 
 # Local terraform directory (providers and modules)
 .terraform/
