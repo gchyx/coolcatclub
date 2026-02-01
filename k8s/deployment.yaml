@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: coolcatclub-website
+  labels:
+    app: coolcatclub
+spec:
+  selector:
+    matchLabels:
+      app: coolcatclub
+  replicas: 1 #pods
+  template:
+    metadata:
+      labels:
+        app: coolcatclub
+    spec:
+      containers:
+      - name: website
+        image: 526295688531.dkr.ecr.ap-southeast-1.amazonaws.com/coolcatclub-web
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "50m"
+          limits:
+            memory: "64Mi"
+            cpu: "100m"
