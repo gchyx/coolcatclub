@@ -1,0 +1,10 @@
+FROM httpd:2.4-alpine
+
+# copying file to apache's root
+COPY . /usr/local/apache2/htdocs
+
+# exposing port
+EXPOSE 80
+
+# running on port 80 by default
+CMD [ "httpd-foreground" ]

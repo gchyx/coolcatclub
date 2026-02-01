@@ -104,7 +104,6 @@ resource "aws_network_interface" "web-server-nic" {
   subnet_id       = aws_subnet.subnet-1.id
   private_ips     = ["10.0.1.50"]
   security_groups = [aws_security_group.allow_web.id]
-
 }
 
 # elastic ip -> network interface
@@ -115,12 +114,70 @@ resource "aws_eip" "one" {
   depends_on = [aws_internet_gateway.gw]
 }
 
-# ubuntu server & install apache2
+# ------------------------------------------------------------------------------->
+
+# creating the ECR instance
+resource "aws_ecr_repository" "website" {
+  name                 = "coolcatclub-web"
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+
+  tags = {
+    Name = "CoolCatClub-Website-Repo"
+  }
+}
+
+# output ECR repo url
+output "ecr_repo_url" {
+  value       = aws_ecr_repository.website.repository_url
+  description = "ECR repository URL"
+}
+
+# ------------------------------------------------------------------------------->
+# IAM role that EC2 can assume
+resource "aws_iam_role" "ec2_ecr_role" {
+  name = "coolcatclub-ec2-ecr-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action = "sts:AssumeRole"
+      Effect = "Allow"
+      Principal = {
+        Service = "ec2.amazonaws.com"
+      }
+    }]
+  })
+
+  tags = {
+    Name = "CoolCatClub-EC2-Role"
+  }
+}
+
+# Attach AWS managed policy for ECR access
+resource "aws_iam_role_policy_attachment" "ecr_policy" {
+  role       = aws_iam_role.ec2_ecr_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess"
+}
+
+# Create instance profile
+resource "aws_iam_instance_profile" "ec2_profile" {
+  name = "coolcatclub-ec2-profile"
+  role = aws_iam_role.ec2_ecr_role.name
+}
+
+# ------------------------------------------------------------------------------->
+
+# ubuntu server with Docker
 resource "aws_instance" "web-server-instance" {
   ami               = "ami-08d59269edddde222"
   instance_type     = "t3.micro"
   availability_zone = "ap-southeast-1a"
   key_name          = "main-key"
+  iam_instance_profile = aws_iam_instance_profile.ec2_profile.name
 
   network_interface {
     device_index         = 0
@@ -130,18 +187,27 @@ resource "aws_instance" "web-server-instance" {
   user_data = <<-EOF
                 #!/bin/bash
                 sudo apt update -y
-                sudo apt install apache2 -y
-                sudo systemctl start apache2
-                sudo systemctl enable apache2
-                sudo chown -R ubuntu:ubuntu /var/www/html
-                # Create a flag file when setup is complete
+                
+                # Install Docker
+                sudo apt install docker.io -y
+                sudo systemctl start docker
+                sudo systemctl enable docker
+                sudo usermod -aG docker ubuntu
+
+                # Install AWS CLI v2
+                curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+                sudo apt install unzip -y
+                unzip awscliv2.zip
+                sudo ./aws/install
+                
+                sudo chown -R ubuntu:ubuntu /home/ubuntu
                 touch /tmp/cloud-init-complete
                 EOF
 
   provisioner "remote-exec" {
     inline = [
-      "cloud-init status --wait",  # Wait for cloud-init to complete
-      "timeout 300 bash -c 'until [ -f /tmp/cloud-init-complete ]; do sleep 2; done'",  # Wait for our flag
+      "cloud-init status --wait",  
+      "timeout 300 bash -c 'until [ -f /tmp/cloud-init-complete ]; do sleep 2; done'",
     ]
     
     connection {
@@ -154,7 +220,7 @@ resource "aws_instance" "web-server-instance" {
 
   provisioner "file" {
     source      = "../website"
-    destination = "/home/ubuntu/website"  # More explicit destination
+    destination = "/home/ubuntu/website"
     
     connection {
       type        = "ssh"
@@ -164,14 +230,26 @@ resource "aws_instance" "web-server-instance" {
     }
   }
 
-    provisioner "remote-exec" {
-        inline = [
-        "echo 'Copying files to web root...'",
-        "sudo cp -r /home/ubuntu/website/* /var/www/html/",
-        "sudo chown -R www-data:www-data /var/www/html/",
-        "sudo systemctl restart apache2",
-        "echo 'Deployment complete!'"
-        ]
+  provisioner "remote-exec" {
+    inline = [
+      "echo 'Building Docker image...'",
+      "cd /home/ubuntu/website",
+      "sudo docker build -t coolcatclub-web:latest .",
+      
+      "echo 'Logging into ECR...'",
+      "aws ecr get-login-password --region ap-southeast-1 | sudo docker login --username AWS --password-stdin ${aws_ecr_repository.website.repository_url}",
+      
+      "echo 'Tagging image for ECR...'",
+      "sudo docker tag coolcatclub-web:latest ${aws_ecr_repository.website.repository_url}:latest",
+      
+      "echo 'Pushing to ECR...'",
+      "sudo docker push ${aws_ecr_repository.website.repository_url}:latest",
+      
+      "echo 'Running container locally on port 80...'",
+      "sudo docker run -d -p 80:80 --name web-server --restart unless-stopped ${aws_ecr_repository.website.repository_url}:latest",
+      
+      "echo 'Deployment complete! Image pushed to ECR and running locally.'"
+    ]
     
     connection {
       type        = "ssh"
