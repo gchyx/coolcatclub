@@ -28,37 +28,29 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
 
-    # --- TERRAFORM SECTION ---
-    - name: Check for Terraform changes
-      id: tf-check
-      run: |
-        # If this is the first ever commit, HEAD^ might fail. 
-        # We use || echo to ensure it doesn't crash on the very first run.
-        if git diff --quiet HEAD^ HEAD ./terraform 2>/dev/null || [ $? -eq 128 ]; then
-          echo "changed=false" >> $GITHUB_OUTPUT
-        else
-          echo "changed=true" >> $GITHUB_OUTPUT
-        fi
-
-    # We MUST install Terraform before we can use it
-    - name: Setup Terraform
-      if: steps.tf-check.outputs.changed == 'true'
-      uses: hashicorp/setup-terraform@v3
-      with:
-        terraform_version: "1.7.0" # Or your preferred version
-
-    - name: Terraform Plan
-      if: steps.tf-check.outputs.changed == 'true'
-      run: |
-        cd terraform
-        terraform init
-        terraform plan -out=tfplan
+    # --- TERRAFORM SECTION (OPTIONAL - COMMENTED OUT) ---
+    # Uncomment only if you want to manage infrastructure via CI/CD
+    # - name: Check for Terraform changes
+    #   id: tf-check
+    #   run: |
+    #     if git diff --quiet HEAD^ HEAD ./terraform; then
+    #       echo "changed=false" >> $GITHUB_OUTPUT
+    #     else
+    #       echo "changed=true" >> $GITHUB_OUTPUT
+    #     fi
     
-    - name: Terraform Apply
-      if: steps.tf-check.outputs.changed == 'true'
-      run: |
-        cd terraform
-        terraform apply -auto-approve tfplan
+    # - name: Terraform Plan
+    #   if: steps.tf-check.outputs.changed == 'true'
+    #   run: |
+    #     cd terraform
+    #     terraform init
+    #     terraform plan -out=tfplan
+    
+    # - name: Terraform Apply (Manual approval recommended)
+    #   if: steps.tf-check.outputs.changed == 'true'
+    #   run: |
+    #     cd terraform
+    #     terraform apply -auto-approve tfplan
 
     # --- BUILD & PUSH TO ECR ---
     - name: Login to Amazon ECR
