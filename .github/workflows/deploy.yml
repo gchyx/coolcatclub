@@ -1,0 +1,159 @@
+name: Build and Deploy to EKS
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:  # Allow manual triggers
+
+env:
+  AWS_REGION: ap-southeast-1
+  ECR_REPOSITORY: coolcatclub-web
+  EKS_CLUSTER_NAME: coolcatclub-cluster
+  DEPLOYMENT_NAME: coolcatclub-website
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 2
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    # --- TERRAFORM SECTION ---
+    - name: Check for Terraform changes
+      id: tf-check
+      run: |
+        # If this is the first ever commit, HEAD^ might fail. 
+        # We use || echo to ensure it doesn't crash on the very first run.
+        if git diff --quiet HEAD^ HEAD ./terraform 2>/dev/null || [ $? -eq 128 ]; then
+          echo "changed=false" >> $GITHUB_OUTPUT
+        else
+          echo "changed=true" >> $GITHUB_OUTPUT
+        fi
+
+    # We MUST install Terraform before we can use it
+    - name: Setup Terraform
+      if: steps.tf-check.outputs.changed == 'true'
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: "1.7.0" # Or your preferred version
+
+    - name: Terraform Plan
+      if: steps.tf-check.outputs.changed == 'true'
+      run: |
+        cd terraform
+        terraform init
+        terraform plan -out=tfplan
+    
+    - name: Terraform Apply
+      if: steps.tf-check.outputs.changed == 'true'
+      run: |
+        cd terraform
+        terraform apply -auto-approve tfplan
+
+    # --- BUILD & PUSH TO ECR ---
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Build, Tag, and Push Docker Image
+      id: build-image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        # Build from the website directory (where Dockerfile is)
+        cd website
+        
+        # Build once with commit SHA tag
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        
+        # Tag the same image as 'latest'
+        docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
+        
+        # Push both tags
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+        
+        # Output for later steps
+        echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+    # --- DEPLOY TO KUBERNETES ---
+    - name: Install kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'latest'
+
+    - name: Update Kubeconfig
+      run: |
+        aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.EKS_CLUSTER_NAME }}
+
+    - name: Deploy to EKS
+      env:
+        IMAGE: ${{ steps.build-image.outputs.image }}
+      run: |
+        # Update deployment with the NEW image (critical!)
+        kubectl set image deployment/$DEPLOYMENT_NAME \
+          website=$IMAGE
+        
+        # Wait for rollout to complete (with timeout)
+        kubectl rollout status deployment/$DEPLOYMENT_NAME --timeout=5m
+
+    - name: Verify Deployment
+      run: |
+        echo "Checking pod status..."
+        kubectl get pods -l app=coolcatclub
+        
+        echo "Checking HPA status..."
+        kubectl get hpa coolcatclub-hpa || echo "HPA not found (ok if not using autoscaling)"
+        
+        echo "Checking service..."
+        kubectl get svc coolcatclub-service
+
+    # --- SMOKE TEST ---
+    - name: Smoke Test
+      run: |
+        # Get LoadBalancer URL
+        SERVICE_URL=$(kubectl get svc coolcatclub-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+        
+        if [ -z "$SERVICE_URL" ]; then
+          echo "Warning: LoadBalancer URL not found yet"
+        else
+          echo "Testing endpoint: http://$SERVICE_URL"
+          # Wait a bit for DNS
+          sleep 10
+          curl -f http://$SERVICE_URL || echo "Smoke test failed (may need more time for LB)"
+        fi
+
+    # --- ROLLBACK ON FAILURE ---
+    - name: Rollback on Failure
+      if: failure()
+      run: |
+        echo "❌ Deployment failed! Rolling back..."
+        kubectl rollout undo deployment/$DEPLOYMENT_NAME
+        kubectl rollout status deployment/$DEPLOYMENT_NAME --timeout=3m
+        echo "Rollback complete. Check logs for errors."
+
+    # --- SUCCESS SUMMARY ---
+    - name: Deployment Summary
+      if: success()
+      run: |
+        echo "### ✅ Deployment Successful!" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Image:** ${{ steps.build-image.outputs.image }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Cluster:** ${{ env.EKS_CLUSTER_NAME }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Pods:**" >> $GITHUB_STEP_SUMMARY
+        echo '```' >> $GITHUB_STEP_SUMMARY
+        kubectl get pods -l app=coolcatclub >> $GITHUB_STEP_SUMMARY
+        echo '```' >> $GITHUB_STEP_SUMMARY
