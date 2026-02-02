@@ -32,5 +32,5 @@ spec:
       - type: Pods
         value: 2 #or add 2 pods at once
         periodSeconds: 15
-      selectPolicy: max
+      selectPolicy: Max
 
