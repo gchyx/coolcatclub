@@ -28,30 +28,6 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
 
-    # --- TERRAFORM SECTION (OPTIONAL - COMMENTED OUT) ---
-    # Uncomment only if you want to manage infrastructure via CI/CD
-    # - name: Check for Terraform changes
-    #   id: tf-check
-    #   run: |
-    #     if git diff --quiet HEAD^ HEAD ./terraform; then
-    #       echo "changed=false" >> $GITHUB_OUTPUT
-    #     else
-    #       echo "changed=true" >> $GITHUB_OUTPUT
-    #     fi
-    
-    # - name: Terraform Plan
-    #   if: steps.tf-check.outputs.changed == 'true'
-    #   run: |
-    #     cd terraform
-    #     terraform init
-    #     terraform plan -out=tfplan
-    
-    # - name: Terraform Apply (Manual approval recommended)
-    #   if: steps.tf-check.outputs.changed == 'true'
-    #   run: |
-    #     cd terraform
-    #     terraform apply -auto-approve tfplan
-
     # --- BUILD & PUSH TO ECR ---
     - name: Login to Amazon ECR
       id: login-ecr
