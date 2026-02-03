@@ -168,5 +168,19 @@ Reverts to previous working version
     ▼
 Disaster averted
 ```
+## References & Acknowledgments
+This project was a journey of learning and iteration. I’d like to acknowledge the following resources that helped me bridge the gap between theory and a live production environment:
+### 🎥 Learning Resources
+- [Sanjeev Thiyagarajan]: Their tutorial on [Terraform](https://www.youtube.com/watch?v=b1P2AH9bjpI) provided the foundation for my initial networking setup.
+- Official Documentation: Extensive use of the Terraform AWS Provider and the Kubernetes Documentation.
 
+### 🤖 AI Collaboration
+I utilized AI as a "Pair Programmer" to help debug complex errors and optimize my workflow:
 
+- Gemini: Assisted in refining the initial monolithic EC2 logic and troubleshooting Terraform provider issues.
+- Claude AI: Helped architect the transition from EC2 to EKS, refined the CI/CD pipeline logic, and assisted in documentation and SRE planning.
+
+### 🎨 Creative
+All Cat Art and illustrations found on the website were hand-drawn by me.
+
+Thank you so much for visiting!
