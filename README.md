@@ -149,7 +149,7 @@ The workflow checks:
 - **HPA** (Horizontal Pod Autoscaler): Is autoscaling configured?
 - **Service**: Is the LoadBalancer accessible?
 
-#### 6. Smoke Test**
+#### 6. Smoke Test
 ```
 Get LoadBalancer URL → Wait for DNS → curl test → ✅ or ❌
 ```
