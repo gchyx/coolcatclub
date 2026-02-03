@@ -14,7 +14,8 @@ This project showcases a website that I created years ago during my uni years. I
 This section will show the step-by-steps on how to operate this deployment. 
 
 ### Deploying
-1. Initializing and building the infrastructure:
+**1. Initializing and building the infrastructure:**
+
 For this step, make sure to be in the `coolcatclub` directory in the terminal.
 
 ```
@@ -25,14 +26,16 @@ terraform apply
 
 _This step will run the terraform files and build the infrastructure in AWS. It will take around 5-10 mins._
 
-2. Configure Kubernetes Access
+**2. Configure Kubernetes Access**
+
 When the process for `terraform apply` is completed, we would need to configure the Kubernetes access in the terminal.
 
 ```
 aws eks update-kubeconfig --region ap-southeast-1 --name coolcatclub-cluster
 ```
 
-3. Deploying the .yaml files
+**3. Deploying the .yaml files**
+
 Once the kubeconfig is applied, we can start applying the `.yaml` files with `kubectl`. Be sure to navigate to the k8s/ folder.
 
 ```
