@@ -26,19 +26,19 @@ This basic CICD pipeline was built using GitHub actions. The image below shows t
 <img width="599" height="1082" alt="CICD" src="https://github.com/user-attachments/assets/866db29b-6a32-47c1-ad6b-4552fc2e61fb" />
 
 ### Detailed Explanation:
-1️⃣ **Trigger**
+#### 1. Trigger
 The workflow starts when:
 - Code is pushed to the `main` branch
 - Manually triggered via GitHub Actions UI (`workflow_dispatch`)
 
-2️⃣ **Authentication & Setup**
+#### 2. Authentication & Setup
 - **Checkout Code**: Fetches your latest code from GitHub
 - **AWS Credentials**: Uses GitHub Secrets to authenticate with AWS
   - `AWS_ACCESS_KEY_ID`
   - `AWS_SECRET_ACCESS_KEY`
 - **Install Tools**: Sets up `kubectl` for Kubernetes commands
 
-3️⃣ **Build Phase**
+#### 3. Build Phase
 ```
 GitHub Repository
        │
@@ -60,7 +60,7 @@ ECR Repository: coolcatclub-web
 - **Commit SHA tag** (`abc123`): Specific version for rollbacks
 - **`latest` tag**: Always points to newest version
 
-4️⃣ **Deploy Phase**
+#### 4. Deploy Phase**
 ```
 ECR Image
     │
@@ -87,19 +87,19 @@ Deployment complete ✅
 4. Old pods are terminated
 5. Zero downtime!
 
-5️⃣ **Verification**
+#### 5. Verification
 The workflow checks:
 - **Pods**: Are they running?
 - **HPA** (Horizontal Pod Autoscaler): Is autoscaling configured?
 - **Service**: Is the LoadBalancer accessible?
 
-6️⃣ **Smoke Test**
+#### 6. Smoke Test**
 Tests that your application is actually accessible:
 ```
 Get LoadBalancer URL → Wait for DNS → curl test → ✅ or ❌
 ```
 
-7️⃣ **Rollback (if failure)**
+#### 7. Rollback (if failure)
 If anything fails:
 ```
 ❌ Deployment Failed
