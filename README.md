@@ -168,6 +168,17 @@ Reverts to previous working version
     ▼
 Disaster averted
 ```
+## Demo
+**1. Cool Cats Club:** _Version 1_
+
+In version 1.1, the home page of the website is working. However, there is an additional page that has yet to be built. The placeholder page shows a "Coming Soon" title and a link to `home` page. However, the link is also broken as it leads to non-existant HTML page. 
+[Picture on website:home][Picture on website:Demotivated Page is empty and broken link]
+
+
+**2. New Update on Code**
+
+To test if the CICD pipeline works, the new page is created. This page, "Motivational Quotes", will be pushed to GitHub main branch while the website is still running on the EKS cluster. The demo video below will show how fast the deployment will be made to the live website when pushed to the main.
+
 ## References & Acknowledgments
 This project was a journey of learning and iteration. I’d like to acknowledge the following resources that helped me bridge the gap between theory and a live production environment:
 ### 🎥 Learning Resources
