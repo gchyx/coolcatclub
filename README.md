@@ -177,16 +177,18 @@ In version 1.1, the home page of the website is working. However, there is an ad
 
 Version 1.1 New Page:
 
-<img width="800" alt="New Page" src="https://github.com/user-attachments/assets/e10ae1ec-6d97-4887-87a1-068abb5fcf64" />
+<img width="1016" height="229" alt="newpageunavailable" src="https://github.com/user-attachments/assets/ece80f91-2fa8-4183-b701-a2232160d3c9" />
 
 Version 1.1 `Home` Link in New Page:
 
-<img width="800" alt="Not Found: Home Link" src="https://github.com/user-attachments/assets/891a30cd-4da9-41e0-bedf-52c4e76e98a6" />
+<img width="1008" height="176" alt="pagenotfound" src="https://github.com/user-attachments/assets/62e9e479-a6ca-41b1-a613-b81d77e9c38a" />
+
 
 **2. New Update on Code**
 
 To test if the CICD pipeline works, the new page is created. This page, "Motivational Quotes", will be pushed to GitHub main branch while the website is still running on the EKS cluster. The demo video below will show how the changes will be made to the live website after it's been pushed to the main.
 
+![Website-Version1.2](https://github.com/user-attachments/assets/4b80e98f-f817-41d0-8b96-614bf54a494c)
 
 
 _**The New Motivation Quotes Page:**_
