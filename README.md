@@ -1,5 +1,4 @@
 # A Cloud Project: CoolCatClub
----
 This project showcases a website that I created years ago during my uni years. I brought it up again because I wanted to practice on building a production-grade infrastructure using Docker and Kubernetes in AWS EC2 through Terraform. I also built a basic CICD pipeline so whenever I make changes to the website code, it automatically deploys it to the live website. 
 
 *_The website is just a basic test HTML/CSS for me to practice Terraform, Kubectl, AWS, and Github Actions. All cat art in the website are done by me._  
@@ -11,20 +10,111 @@ This project showcases a website that I created years ago during my uni years. I
 - CI/CD: GitHub Actions
 - Cloud: AWS
 
-## Building the Cloud with Terraform (IaC)
----
-I started off this the project with building the Cloud architecture with Terraform (website and AWS account was already set up). For this website use case, I started with a monolithic architecture where the terraform file was provisioning a single EC2 host. The single `main.tf` file built the networking foundations _(VPC, subnet, internet gateway, route table, security group, and Elastic IP)_, the ECR repository for storing docker images, IAM role & instance profile, and the EC2 instance to build the docker image, pushes it to ECR, and run the container locally on port 80. 
+## Building AWS Infrastructure with Terraform (IaC) ☁️
+I started off this the project with building the Cloud architecture with Terraform (website and AWS account was already set up). For this website use case, I started with a monolithic architecture where the terraform file was provisioning a single EC2 host. The single `main.tf` file built the networking foundations _(VPC, subnet, internet gateway, route table, security group, and Elastic IP)_, the ECR repository for storing docker images, IAM role & instance profile, and the EC2 instance to build the docker image, push it to ECR, and run the container locally on port 80. 
 
 <img width="1023" height="579" alt="Monolithic" src="https://github.com/user-attachments/assets/61ea6821-138f-4521-9bfe-5c5cb1ae4896" />
-
 
 After this was built, I added a new `EKS.tf` file which created the EKS clusters. The reason for this was so that I could practice Kubernetes and know more about high availability, pod scheduling, and automated recovery. _I admit that this use case was a bit of an overkill since it's only hosting a single basic static website._ 
 
 <img width="1023" height="579" alt="EKS Cluster" src="https://github.com/user-attachments/assets/aefa6a1b-881f-4660-8889-28133c5c6227" />
 
-
 The `backend.tf` was created to store the `.tfstate` file into the S3 bucket. 
 
-
 ## The CICD Pipeline
----
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                         GITHUB ACTIONS WORKFLOW                          │
+│                    Trigger: Push to 'main' or Manual                     │
+└────────────────────────────────┬────────────────────────────────────────┘
+                                 │
+                                 ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│  STEP 1: CHECKOUT & SETUP                                               │
+│  ┌───────────────────────────────────────────────────────────────┐     │
+│  │  • Checkout code from repository                              │     │
+│  │  • Configure AWS credentials from GitHub Secrets              │     │
+│  │  • Install kubectl (Kubernetes CLI)                           │     │
+│  └───────────────────────────────────────────────────────────────┘     │
+└────────────────────────────────┬────────────────────────────────────────┘
+                                 │
+                                 ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│  STEP 2: BUILD & PUSH DOCKER IMAGE                                      │
+│  ┌───────────────────────────────────────────────────────────────┐     │
+│  │  1. Login to Amazon ECR                                       │     │
+│  │     └─> Authenticate with ECR registry                        │     │
+│  │                                                                │     │
+│  │  2. Build Docker Image                                        │     │
+│  │     └─> cd website/                                           │     │
+│  │     └─> docker build -t image:$COMMIT_SHA                     │     │
+│  │                                                                │     │
+│  │  3. Tag Image                                                 │     │
+│  │     └─> Tag with commit SHA: image:abc123                     │     │
+│  │     └─> Tag with 'latest': image:latest                       │     │
+│  │                                                                │     │
+│  │  4. Push to ECR                                               │     │
+│  │     └─> Push image:abc123                                     │     │
+│  │     └─> Push image:latest                                     │     │
+│  └───────────────────────────────────────────────────────────────┘     │
+│                                                                          │
+│  Result: Docker image in ECR Repository                                 │
+│  • coolcatclub-web:abc123 (commit-specific)                            │
+│  • coolcatclub-web:latest (always newest)                              │
+└────────────────────────────────┬────────────────────────────────────────┘
+                                 │
+                                 ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│  STEP 3: DEPLOY TO EKS                                                  │
+│  ┌───────────────────────────────────────────────────────────────┐     │
+│  │  1. Update Kubeconfig                                         │     │
+│  │     └─> aws eks update-kubeconfig --name coolcatclub-cluster  │     │
+│  │                                                                │     │
+│  │  2. Update Deployment Image                                   │     │
+│  │     └─> kubectl set image deployment/coolcatclub-website      │     │
+│  │         website=ECR_REGISTRY/coolcatclub-web:$COMMIT_SHA      │     │
+│  │                                                                │     │
+│  │  3. Wait for Rollout (5 min timeout)                          │     │
+│  │     └─> kubectl rollout status deployment/...                 │     │
+│  │     └─> Waits for all pods to be running & ready              │     │
+│  └───────────────────────────────────────────────────────────────┘     │
+└────────────────────────────────┬────────────────────────────────────────┘
+                                 │
+                                 ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│  STEP 4: VERIFICATION                                                   │
+│  ┌───────────────────────────────────────────────────────────────┐     │
+│  │  • Check pod status (kubectl get pods)                        │     │
+│  │  • Check HPA status (kubectl get hpa)                         │     │
+│  │  • Check service status (kubectl get svc)                     │     │
+│  └───────────────────────────────────────────────────────────────┘     │
+└────────────────────────────────┬────────────────────────────────────────┘
+                                 │
+                                 ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│  STEP 5: SMOKE TEST                                                     │
+│  ┌───────────────────────────────────────────────────────────────┐     │
+│  │  1. Get LoadBalancer URL from Kubernetes service              │     │
+│  │  2. Wait 10 seconds for DNS propagation                       │     │
+│  │  3. Test HTTP endpoint with curl                              │     │
+│  │     └─> curl -f http://LOAD_BALANCER_URL                      │     │
+│  └───────────────────────────────────────────────────────────────┘     │
+└────────────────────────────────┬────────────────────────────────────────┘
+                                 │
+                    ┌────────────┴────────────┐
+                    │                         │
+                    ▼                         ▼
+         ┌──────────────────┐      ┌──────────────────────┐
+         │   ✅ SUCCESS      │      │   ❌ FAILURE          │
+         └────────┬─────────┘      └──────────┬───────────┘
+                  │                           │
+                  ▼                           ▼
+    ┌──────────────────────┐      ┌─────────────────────────┐
+    │ Display Summary:     │      │ ROLLBACK:               │
+    │ • Image deployed     │      │ • kubectl rollout undo  │
+    │ • Commit SHA         │      │ • Revert to previous    │
+    │ • Pod status         │      │   working version       │
+    └──────────────────────┘      └─────────────────────────┘
+```
+
+
