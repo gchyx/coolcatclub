@@ -3,7 +3,7 @@ This project showcases a website that I created years ago during my uni years. I
 
 *_The website is just a basic test HTML/CSS for me to practice Terraform, Kubectl, AWS, and Github Actions. All cat art in the website are done by me._  
 
-🛠 Tech Stack
+### 🛠 Tech Stack
 - Infrastructure: Terraform (AWS EKS, VPC, ECR)
 - Orchestration: Kubernetes (Deployments, Services, HPA)
 - Containerization: Docker
@@ -169,15 +169,28 @@ Reverts to previous working version
 Disaster averted
 ```
 ## Demo
-**1. Cool Cats Club:** _Version 1_
+**1. Cool Cats Club:** _Version 1.1_
 
 In version 1.1, the home page of the website is working. However, there is an additional page that has yet to be built. The placeholder page shows a "Coming Soon" title and a link to `home` page. However, the link is also broken as it leads to non-existant HTML page. 
-[Picture on website:home][Picture on website:Demotivated Page is empty and broken link]
 
+![Website-Version1.1](https://github.com/user-attachments/assets/b79a14d8-5464-4e36-96ba-1e50ac456c52)
+
+Version 1.1 New Page:
+<img width="1440" height="900" alt="New Page" src="https://github.com/user-attachments/assets/e10ae1ec-6d97-4887-87a1-068abb5fcf64" />
+
+Version 1.1 `Home` Link in New Page:
+<img width="1440" height="900" alt="Not Found: Home Link" src="https://github.com/user-attachments/assets/891a30cd-4da9-41e0-bedf-52c4e76e98a6" />
 
 **2. New Update on Code**
 
-To test if the CICD pipeline works, the new page is created. This page, "Motivational Quotes", will be pushed to GitHub main branch while the website is still running on the EKS cluster. The demo video below will show how fast the deployment will be made to the live website when pushed to the main.
+To test if the CICD pipeline works, the new page is created. This page, "Motivational Quotes", will be pushed to GitHub main branch while the website is still running on the EKS cluster. The demo video below will show how the changes will be made to the live website after it's been pushed to the main.
+
+![Website-Version1.2](https://github.com/user-attachments/assets/035fbe92-b7b8-490b-ae54-2c14834fef6d)
+
+_**The New Motivation Quotes Page:**_
+
+<img width="1440" height="900" alt="MotivationPage" src="https://github.com/user-attachments/assets/0af48106-f5c8-4104-b6a2-fd55e25c093b" />
+
 
 ## References & Acknowledgments
 This project was a journey of learning and iteration. I’d like to acknowledge the following resources that helped me bridge the gap between theory and a live production environment:
