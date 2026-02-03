@@ -10,6 +10,58 @@ This project showcases a website that I created years ago during my uni years. I
 - CI/CD: GitHub Actions
 - Cloud: AWS
 
+## Project Workflow
+This section will show the step-by-steps on how to operate this deployment. 
+
+### Deploying
+1. Initializing and building the infrastructure:
+For this step, make sure to be in the `coolcatclub` directory in the terminal.
+
+```
+cd terraform
+terraform init
+terraform apply
+```
+
+_This step will run the terraform files and build the infrastructure in AWS. It will take around 5-10 mins._
+
+2. Configure Kubernetes Access
+When the process for `terraform apply` is completed, we would need to configure the Kubernetes access in the terminal.
+
+```
+aws eks update-kubeconfig --region ap-southeast-1 --name coolcatclub-cluster
+```
+
+3. Deploying the .yaml files
+Once the kubeconfig is applied, we can start applying the `.yaml` files with `kubectl`. Be sure to navigate to the k8s/ folder.
+
+```
+# Current path is .../coolcatclub
+cd k8s
+kubectl apply -f deployment.yaml
+kubectl apply -f service.yaml
+kubectl apply -f hpa.yaml
+```
+
+To access the web:
+```
+kubectl get svc coolcatclub-service
+```
+
+### Cleaning up
+This is to avoid charges in AWS. 
+```
+# Delete K8s resources (to clean up the Load Balancer)
+kubectl delete -f k8s/
+
+# Destroy the infrastructure
+cd terraform
+terraform destroy -auto-approve
+
+# Force-delete the ECR repo (if images remain)
+aws ecr delete-repository --repository-name coolcatclub-web --force --region ap-southeast-1
+```
+
 ## Building AWS Infrastructure with Terraform (IaC) ☁️
 I started off this the project with building the Cloud architecture with Terraform (website and AWS account was already set up). For this website use case, I started with a monolithic architecture where the terraform file was provisioning a single EC2 host. The single `main.tf` file built the networking foundations _(VPC, subnet, internet gateway, route table, security group, and Elastic IP)_, the ECR repository for storing docker images, IAM role & instance profile, and the EC2 instance to build the docker image, push it to ECR, and run the container locally on port 80. 
 
@@ -113,6 +165,5 @@ Reverts to previous working version
     ▼
 Disaster averted
 ```
-
 
 
