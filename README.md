@@ -176,10 +176,12 @@ In version 1.1, the home page of the website is working. However, there is an ad
 ![Website-Version1.1](https://github.com/user-attachments/assets/b79a14d8-5464-4e36-96ba-1e50ac456c52)
 
 Version 1.1 New Page:
-<img width="500" alt="New Page" src="https://github.com/user-attachments/assets/e10ae1ec-6d97-4887-87a1-068abb5fcf64" />
+
+<img width="800" alt="New Page" src="https://github.com/user-attachments/assets/e10ae1ec-6d97-4887-87a1-068abb5fcf64" />
 
 Version 1.1 `Home` Link in New Page:
-<img width="1440" height="900" alt="Not Found: Home Link" src="https://github.com/user-attachments/assets/891a30cd-4da9-41e0-bedf-52c4e76e98a6" />
+
+<img width="800" alt="Not Found: Home Link" src="https://github.com/user-attachments/assets/891a30cd-4da9-41e0-bedf-52c4e76e98a6" />
 
 **2. New Update on Code**
 
@@ -189,7 +191,7 @@ To test if the CICD pipeline works, the new page is created. This page, "Motivat
 
 _**The New Motivation Quotes Page:**_
 
-<img width="1440" height="900" alt="MotivationPage" src="https://github.com/user-attachments/assets/0af48106-f5c8-4104-b6a2-fd55e25c093b" />
+<img width="800" alt="MotivationPage" src="https://github.com/user-attachments/assets/0af48106-f5c8-4104-b6a2-fd55e25c093b" />
 
 
 ## References & Acknowledgments
