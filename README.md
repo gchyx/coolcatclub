@@ -190,6 +190,13 @@ To test if the CICD pipeline works, the new page is created. This page, "Motivat
 
 ![Website-Version1.2](https://github.com/user-attachments/assets/4b80e98f-f817-41d0-8b96-614bf54a494c)
 
+This page is updated when the HTML/CSS code is changed and pushed to main:
+```
+# ... Changes made to website code
+git add .
+git commit -m "Updated"
+git push origin main
+```
 
 _**The New Motivation Quotes Page:**_
 
