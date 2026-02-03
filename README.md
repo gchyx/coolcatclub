@@ -23,6 +23,7 @@ The `backend.tf` was created to store the `.tfstate` file into the S3 bucket.
 
 ## The CICD Pipeline with GitHub Actions
 This basic CICD pipeline was built using GitHub actions. The image below shows the workflow of the pipeline when the action for "push" is triggered on the main branch: 
+
 <img width="599" height="1082" alt="CICD" src="https://github.com/user-attachments/assets/866db29b-6a32-47c1-ad6b-4552fc2e61fb" />
 
 ### Detailed Explanation:
@@ -94,7 +95,6 @@ The workflow checks:
 - **Service**: Is the LoadBalancer accessible?
 
 #### 6. Smoke Test**
-Tests that your application is actually accessible:
 ```
 Get LoadBalancer URL → Wait for DNS → curl test → ✅ or ❌
 ```
@@ -111,7 +111,7 @@ kubectl rollout undo
 Reverts to previous working version
     │
     ▼
-Disaster averted! 🛡️
+Disaster averted
 ```
 
 
