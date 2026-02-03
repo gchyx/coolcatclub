@@ -1,0 +1,71 @@
+* {
+	text-align: center; 
+}
+
+body {
+	/*background-image: url(file:///C:/Users/Gladys/Downloads/undefined%20-%20Imgur.jpg);*/
+	background-image: url("https://cdn130.picsart.com/327277385049201.jpg?type=webp&to=min&r=640");
+	backdrop-filter: blur(5px);
+	padding: 20px 20px 20px 20px;
+}
+
+.container-fluid {
+	text-align: center;
+	padding:  10px 10px;
+	font-family: 'Josefin Sans', 'sans-serif', !important;
+	font-weight: bolder;
+}
+
+.nav-item :hover {
+	background-color: rgb(255, 183, 86);
+	border: solid;
+	border-color: rgb(255, 183, 86);
+	border-radius: 20px;
+	padding: 5px 5px;
+}
+
+#title_of_the_page {
+	text-align: center;
+	font-size: 120px;
+	font-family: 'IM Fell DW Pica SC', 'serif';
+	font-weight: 40%;
+	text-align: center;
+}
+
+.glass {
+	height: 140px;
+	position: relative;
+  	background: rgba(255, 255, 255, 0.15);
+  	backdrop-filter: blur(4px) saturate(150%);
+  	border: 0.4px solid rgba(255, 255, 255, 0.8);
+  	border-radius: 1rem;
+  	box-shadow: 0 8px 32px rgba(31, 38, 135, 0.2), 
+              	inset 0 4px 20px rgba(255, 255, 255, 0.3);
+}
+
+h2 {
+	color: black;
+	font-family: 'Josefin Sans', 'sans-serif';
+}
+
+#h2p {
+	font-family: 'Josefin Sans', 'sans-serif';
+}
+
+.quotes {
+	text-align: left;
+	font-family: 'Josefin Sans', 'sans-serif';
+	padding: 10px 10px 10px 20px;
+}
+
+img {
+	padding: 10px 20px 20px 10px;
+	width: 120px;
+}
+
+
+
+
+
+
+
