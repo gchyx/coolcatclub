@@ -186,7 +186,7 @@ Version 1.1 `Home` Link in New Page:
 
 ### New Update on Code: _Version 1.2_
 
-To test if the CICD pipeline works, the new page is created. This page, "Motivation Quotes", will be pushed to GitHub main branch while the website is still running on the EKS cluster. The demo video below will show how the changes will be made to the live website after it's been pushed to the main.
+To test if the CICD pipeline works, the new page is created. This page, "Motivation Quotes", will be pushed to GitHub main branch while the website is still running on the EKS cluster. The demo video below will show how the changes will be made to the live website after it's been pushed to the main. All it takes is one refresh 🍋.
 
 ![Website-Version1.2](https://github.com/user-attachments/assets/4b80e98f-f817-41d0-8b96-614bf54a494c)
 
