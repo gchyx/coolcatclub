@@ -104,6 +104,8 @@ _**The New Motivation Quotes Page:**_
 ## Building AWS Infrastructure with Terraform (IaC) ☁️
 I started off this the project with building the Cloud architecture with Terraform (website and AWS account was already set up). For this website use case, I started with a monolithic architecture where the terraform file was provisioning a single EC2 host. The single `main.tf` file built the networking foundations _(VPC, subnet, internet gateway, route table, security group, and Elastic IP)_, the ECR repository for storing docker images, IAM role & instance profile, and the EC2 instance to build the docker image, push it to ECR, and run the container locally on port 80. 
 
+Update (4/2/2026): I re-arranged the files where each components(`networking.tf`, `ECR.tf`, `EKS.tf`, `backend.tf`) are in a separate `.tf` file. For the EC2 instance, I placed it in another folder called `ec2`. This is in case I want to deploy the website in a single EC2 instance rather than hosting it in a EKS cluster to save cost.
+
 <img width="1023" height="579" alt="Monolithic" src="https://github.com/user-attachments/assets/61ea6821-138f-4521-9bfe-5c5cb1ae4896" />
 
 After this was built, I added a new `EKS.tf` file which created the EKS clusters. The reason for this was so that I could practice Kubernetes and know more about high availability, pod scheduling, and automated recovery. _I admit that this use case was a bit of an overkill since it's only hosting a single basic static website._ 
