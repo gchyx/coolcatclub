@@ -65,6 +65,42 @@ terraform destroy -auto-approve
 aws ecr delete-repository --repository-name coolcatclub-web --force --region ap-southeast-1
 ```
 
+## Demo: Updating the Website
+### Cool Cats Club: _Version 1.1_
+
+In version 1.1, the home page of the website is working. However, there is an additional page that has yet to be built. The placeholder page shows a "Coming Soon" title and a link to `home` page. However, the link is also broken as it leads to non-existant HTML page. 
+
+![Website-Version1.1](https://github.com/user-attachments/assets/b79a14d8-5464-4e36-96ba-1e50ac456c52)
+
+Version 1.1 New Page:
+
+<img width="1016" height="229" alt="newpageunavailable" src="https://github.com/user-attachments/assets/ece80f91-2fa8-4183-b701-a2232160d3c9" />
+
+Version 1.1 `Home` Link in New Page:
+
+<img width="1008" height="176" alt="pagenotfound" src="https://github.com/user-attachments/assets/62e9e479-a6ca-41b1-a613-b81d77e9c38a" />
+
+
+### New Update on Code: _Version 1.2_
+
+To test if the CICD pipeline works, the new page is created. This page, "Motivation Quotes", will be pushed to GitHub main branch while the website is still running on the EKS cluster. The demo video below will show the changes that was made to the live website after it's been pushed to the main. All it takes is one refresh 🍋.
+
+![Website-Version1.2](https://github.com/user-attachments/assets/4b80e98f-f817-41d0-8b96-614bf54a494c)
+
+This page is updated when the HTML/CSS code is changed and pushed to main:
+```
+# ... Changes made to website code
+git add .
+git commit -m "Updated"
+git push origin main
+```
+
+_**The New Motivation Quotes Page:**_
+
+<img width="800" alt="MotivationPage" src="https://github.com/user-attachments/assets/0af48106-f5c8-4104-b6a2-fd55e25c093b" />
+
+
+
 ## Building AWS Infrastructure with Terraform (IaC) ☁️
 I started off this the project with building the Cloud architecture with Terraform (website and AWS account was already set up). For this website use case, I started with a monolithic architecture where the terraform file was provisioning a single EC2 host. The single `main.tf` file built the networking foundations _(VPC, subnet, internet gateway, route table, security group, and Elastic IP)_, the ECR repository for storing docker images, IAM role & instance profile, and the EC2 instance to build the docker image, push it to ECR, and run the container locally on port 80. 
 
@@ -168,40 +204,6 @@ Reverts to previous working version
     ▼
 Disaster averted
 ```
-## Demo
-### Cool Cats Club: _Version 1.1_
-
-In version 1.1, the home page of the website is working. However, there is an additional page that has yet to be built. The placeholder page shows a "Coming Soon" title and a link to `home` page. However, the link is also broken as it leads to non-existant HTML page. 
-
-![Website-Version1.1](https://github.com/user-attachments/assets/b79a14d8-5464-4e36-96ba-1e50ac456c52)
-
-Version 1.1 New Page:
-
-<img width="1016" height="229" alt="newpageunavailable" src="https://github.com/user-attachments/assets/ece80f91-2fa8-4183-b701-a2232160d3c9" />
-
-Version 1.1 `Home` Link in New Page:
-
-<img width="1008" height="176" alt="pagenotfound" src="https://github.com/user-attachments/assets/62e9e479-a6ca-41b1-a613-b81d77e9c38a" />
-
-
-### New Update on Code: _Version 1.2_
-
-To test if the CICD pipeline works, the new page is created. This page, "Motivation Quotes", will be pushed to GitHub main branch while the website is still running on the EKS cluster. The demo video below will show how the changes will be made to the live website after it's been pushed to the main. All it takes is one refresh 🍋.
-
-![Website-Version1.2](https://github.com/user-attachments/assets/4b80e98f-f817-41d0-8b96-614bf54a494c)
-
-This page is updated when the HTML/CSS code is changed and pushed to main:
-```
-# ... Changes made to website code
-git add .
-git commit -m "Updated"
-git push origin main
-```
-
-_**The New Motivation Quotes Page:**_
-
-<img width="800" alt="MotivationPage" src="https://github.com/user-attachments/assets/0af48106-f5c8-4104-b6a2-fd55e25c093b" />
-
 
 ## References & Acknowledgments
 This project was a journey of learning and iteration. I’d like to acknowledge the following resources that helped me bridge the gap between theory and a live production environment:
